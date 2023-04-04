@@ -23,15 +23,11 @@ class Logger
 
             DEBUG
         };
-        Logger()
-        {
+        
+        Logger()=default;
+        ~Logger()=default;
 
-        }
-        ~Logger()
-        {
-            
-        }
-        void log(enum LogLevel lv, const std::string& msg)
+        void Log(enum LogLevel lv, const std::string& msg)
         {
             time_t t;
             time(&t);
@@ -40,38 +36,38 @@ class Logger
             std::string lvstr;
             switch (lv)
             {
-                case LogLevel::INFO :   lvstr="INFO";   break;
-                case LogLevel::WARN :   lvstr="WARN";   break;
-                case LogLevel::ERROR:   lvstr="ERROR";  break;
-                case LogLevel::FATAL:   lvstr="FATAL";  break;
-                case LogLevel::DEBUG:   lvstr="DEBUG";  break;
+                case LogLevel::INFO :   lvstr="INFO] ";   break;
+                case LogLevel::WARN :   lvstr="WARN] ";   break;
+                case LogLevel::ERROR:   lvstr="ERROR]";  break;
+                case LogLevel::FATAL:   lvstr="FATAL]";  break;
+                case LogLevel::DEBUG:   lvstr="DEBUG]";  break;
                 default:
-                    std::runtime_error("invalid LogLevel. LogLevel type only includes: INFO, WARN, ERROR, FATAL, DEBUG.");
+                    throw std::runtime_error("invalid LogLevel. LogLevel type only includes: INFO, WARN, ERROR, FATAL, DEBUG.");
                     return;
             }
 
-            printf("[%02d:%02d:%02d] [%s] %s\n", localt->tm_hour, localt->tm_min, localt->tm_sec, lvstr.c_str(), msg.c_str());
+            printf("[%02d:%02d:%02d] [%s %s\n", localt->tm_hour, localt->tm_min, localt->tm_sec, lvstr.c_str(), msg.c_str());
 
         }
         void Info(const std::string& msg)
         {
-            log(LogLevel::INFO, msg);
+            Log(LogLevel::INFO, msg);
         }
         void Warn(const std::string& msg)
         {
-            log(LogLevel::WARN, msg);
+            Log(LogLevel::WARN, msg);
         }
         void Error(const std::string& msg)
         {
-            log(LogLevel::ERROR, msg);
+            Log(LogLevel::ERROR, msg);
         }
         void Fatal(const std::string& msg)
         {
-            log(LogLevel::FATAL, msg);
+            Log(LogLevel::FATAL, msg);
         }
         void Debug(const std::string& msg)
         {
-            log(LogLevel::DEBUG, msg);
+            Log(LogLevel::DEBUG, msg);
         }
 };
 
