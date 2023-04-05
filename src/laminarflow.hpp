@@ -7,26 +7,25 @@
 class Layer {
 public:
     Layer() {
-
+		// TODO: Layer construction
     }
     ~Layer() {
-
+		// TODO: Layer deconstruction
     }
 
 private:
-
-
+	// TODO: Layer class structure
 };
 
 class LightSource {
 public:
     LightSource() : cd(new Coordinate3()) {}
-    LightSource(std::unique_ptr<Coordinate3> co) {
+    explicit LightSource(std::unique_ptr<Coordinate3> co) {
         this->cd = std::move(co);
     }
 
     ~LightSource() {
-        
+        // TODO: LightSource deconstruction
     }
 
 
@@ -38,20 +37,20 @@ class World
 {
 public:
     World() {
-
+		// TODO: World construction
     }
     ~World() {
-
+		// TODO: World deconstruction
     }
 
     void merge() {
-
+		// TODO: Merge function
     }
     void merge(LightSource ls) {
-
+		// TODO: Merge LightSource
     }
 private:
-    LightSource lightsource;
+    LightSource lightSource;
 
 };
 

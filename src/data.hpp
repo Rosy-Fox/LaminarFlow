@@ -5,12 +5,11 @@
 #include <cmath>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
-#include <math.h>
 
 class Coordinate3 {
 public:
     Coordinate3() : logger(Logger()) {}
-    virtual ~Coordinate3() {}
+    virtual ~Coordinate3() = default;
 
     Coordinate3(float a, float b, float c) : logger(Logger()) {
         set(a, b, c);
@@ -18,9 +17,9 @@ public:
 
     void set(float a, float b, float c) {
         standard(a, b, c);
-        this->a = a;
-        this->b = b;
-        this->c = c;
+        this->_a = a;
+        this->_b = b;
+        this->_c = c;
     }
     void set(glm::vec3 vc) {
         float a=vc.x;
@@ -28,37 +27,35 @@ public:
         float c=vc.z;
         set(a, b, c);
     }
-    glm::vec3 get() {
-        return glm::vec3(a, b, c);
+    [[nodiscard]] glm::vec3 get() const {
+        return {_a, _b, _c};
     }
 
-    virtual glm::vec3 getStd() {return glm::vec3(a,b,c);}
+    virtual glm::vec3 getStd() {
+		return {_a, _b, _c};
+	}
 
 protected:
     virtual void standard(float& a, float& b, float& c) {}
     Logger logger;
-    float a{}, b{}, c{};
+    float _a{}, _b{}, _c{};
 };
 
 
 class Spherical : Coordinate3 {
 public:
     Spherical(float r, float theta, float phi) : Coordinate3{r, theta, phi} {}
-    Spherical(Coordinate3& co) {
-        float x = co.getStd().x;
-        float y = co.getStd().y;
-        float z = co.getStd().z;
-        Spherical{
-            x*x+y*y+z*z,
-            std::acos(x/std::pow(x*x+y*y,0.5f)),
-            std::acos(z/std::pow(x*x+y*y+z*z,0.5f))
-        };
-    }
-    glm::vec3 getStd() override {
+	explicit Spherical(Coordinate3& co) : Spherical(
+			co.getStd().x * co.getStd().x + co.getStd().y * co.getStd().y + co.getStd().z * co.getStd().z,
+			std::acos(co.getStd().x / std::sqrt(co.getStd().x * co.getStd().x + co.getStd().y * co.getStd().y)),
+			std::acos(co.getStd().z / std::sqrt(co.getStd().x * co.getStd().x + co.getStd().y * co.getStd().y + co.getStd().z * co.getStd().z))
+			) {}
+
+	glm::vec3 getStd() override {
         return glm::vec3{
-            a*std::sin(c)*std::cos(b),
-            a*std::sin(c)*std::sin(b),
-            a*std::cos(c)
+            _a * std::sin(_c) * std::cos(_b),
+            _a * std::sin(_c) * std::sin(_b),
+            _a * std::cos(_c)
         };
     }
 protected:
@@ -74,7 +71,7 @@ protected:
             while (_theta >= 360) {
                 _theta -= 360;
             }
-            logger.Info("input theta not in [0,360), automatically modified");
+            Logger::info("input theta not in [0,360), automatically modified");
         }
 
         if (_phi < 0 || _phi > 180) {
@@ -94,7 +91,7 @@ protected:
                 else
                     _theta += 180;
             }
-            logger.Info("input phi not in [0,180], automatically modified");
+            Logger::warn("input phi not in [0,180], automatically modified");
         }
 
         if (_r < 0) {
@@ -109,7 +106,7 @@ protected:
 
             _phi = 180 - _phi;
 
-            logger.Info("input r not in [0,+infinity), automatically modified");
+            Logger::warn("input r not in [0,+infinity), automatically modified");
         }
         r=_r;
         theta=_theta;
@@ -120,17 +117,15 @@ protected:
 class Cartesian3 : Coordinate3 {
 public:
     Cartesian3(float x, float y, float z) : Coordinate3{x, y, z} {}
-    Cartesian3(Coordinate3& co) {
-        Cartesian3(co.getStd().x,co.getStd().y,co.getStd().z);
-    }
+    explicit Cartesian3(Coordinate3& co) : Cartesian3(co.getStd().x,co.getStd().y,co.getStd().z) {}
     Cartesian3& operator+=(const Cartesian3& r) {
-        a+=r.a;
-        b+=r.b;
-        c+=r.c;
+        _a += r._a;
+        _b += r._b;
+        _c += r._c;
         return *this;
     }
-    friend Cartesian3 operator+(Cartesian3 l, const Cartesian3& r) {
-        return Cartesian3(l.a+r.a, l.b+r.b, l.c+r.c);
+    friend Cartesian3 operator+(const Cartesian3& l, const Cartesian3& r) {
+        return {l._a + r._a, l._b + r._b, l._c + r._c};
     }
 };
 

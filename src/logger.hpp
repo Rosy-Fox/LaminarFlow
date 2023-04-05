@@ -6,41 +6,50 @@
 #include <stdexcept>
 #include <string>
 #include <ctime>
+#include <utility>
 
 /**
  * @brief Simple Logger for project. More functions may be supported in the future.
  * 
  */
-class Logger
-{
+class Logger {
     public:
-        enum LogLevel
-        {
+        enum LogLevel {
             INFO,
             WARN,
             ERROR,
             FATAL,
-
             DEBUG
         };
         
-        Logger()=default;
-        ~Logger()=default;
+        explicit Logger(std::string  name): _name(std::move(name)) {
 
-        void Log(enum LogLevel lv, const std::string& msg)
-        {
+		}
+
+        ~Logger() = default;
+
+		void log(enum LogLevel lv, const std::string& msg) {
             time_t t;
             time(&t);
             auto localt=localtime(&t);
 
             std::string lvstr;
-            switch (lv)
-            {
-                case LogLevel::INFO :   lvstr="INFO] ";   break;
-                case LogLevel::WARN :   lvstr="WARN] ";   break;
-                case LogLevel::ERROR:   lvstr="ERROR]";  break;
-                case LogLevel::FATAL:   lvstr="FATAL]";  break;
-                case LogLevel::DEBUG:   lvstr="DEBUG]";  break;
+            switch (lv) {
+				case LogLevel::INFO :   
+					lvstr= _name + "/INFO] ";
+					break;
+                case LogLevel::WARN :
+					lvstr= _name + "/WARN] ";
+					break;
+                case LogLevel::ERROR:
+					lvstr= _name + "/ERROR]";
+					break;
+                case LogLevel::FATAL:
+					lvstr= _name + "/FATAL]";
+					break;
+                case LogLevel::DEBUG:
+					lvstr= _name + "/DEBUG]";
+					break;
                 default:
                     throw std::runtime_error("invalid LogLevel. LogLevel type only includes: INFO, WARN, ERROR, FATAL, DEBUG.");
                     return;
@@ -49,26 +58,28 @@ class Logger
             printf("[%02d:%02d:%02d] [%s %s\n", localt->tm_hour, localt->tm_min, localt->tm_sec, lvstr.c_str(), msg.c_str());
 
         }
-        void Info(const std::string& msg)
+		void info(const std::string& msg)
         {
-            Log(LogLevel::INFO, msg);
+            log(LogLevel::INFO, msg);
         }
-        void Warn(const std::string& msg)
+		void warn(const std::string& msg)
         {
-            Log(LogLevel::WARN, msg);
+	        log(LogLevel::WARN, msg);
         }
-        void Error(const std::string& msg)
+        void error(const std::string& msg)
         {
-            Log(LogLevel::ERROR, msg);
+	        log(LogLevel::ERROR, msg);
         }
-        void Fatal(const std::string& msg)
+        void fatal(const std::string& msg)
         {
-            Log(LogLevel::FATAL, msg);
+	        log(LogLevel::FATAL, msg);
         }
-        void Debug(const std::string& msg)
+        void debug(const std::string& msg)
         {
-            Log(LogLevel::DEBUG, msg);
+	        log(LogLevel::DEBUG, msg);
         }
+private:
+	std::string _name;
 };
 
 #endif //LAMINARFLOW_LOGGER_H
